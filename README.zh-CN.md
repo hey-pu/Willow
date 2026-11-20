@@ -4,9 +4,9 @@
 
 # Willow · 柳
 
-**开源的 AI 编程工具用量仪表盘。**
+**开源的 Windows Token 统计工具，帮你看清 AI 编程用量。**
 
-查看 OpenAI Codex CLI、Claude Code、Kimi CLI 等工具的 Token 用量、费用估算和会话记录。Willow 从本机日志读取用量。
+Willow 从本机日志读取 OpenAI Codex CLI、Claude Code、Kimi CLI 等工具的会话记录，汇总 Token 消耗并估算费用。Windows 有安装包，macOS 可从源码构建。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)
