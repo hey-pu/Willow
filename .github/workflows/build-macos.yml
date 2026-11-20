@@ -1,0 +1,58 @@
+name: Build macOS installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/build-macos.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: macOS ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+            target: aarch64-apple-darwin
+          - arch: x86_64
+            runner: macos-15-intel
+            target: x86_64-apple-darwin
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: rustup target add "$RUST_TARGET"
+        env:
+          RUST_TARGET: ${{ matrix.target }}
+      - run: pnpm install --frozen-lockfile
+      - name: Build and check disk image
+        env:
+          APPLE_SIGNING_IDENTITY: '-'
+          RUST_TARGET: ${{ matrix.target }}
+          APP_ARCH: ${{ matrix.arch }}
+        run: |
+          pnpm tauri build --bundles dmg --target "$RUST_TARGET"
+          bundle="src-tauri/target/$RUST_TARGET/release/bundle"
+          app="$bundle/macos/Willow.app"
+          test "$(lipo -archs "$app/Contents/MacOS/Willow")" = "$APP_ARCH"
+          codesign --verify --deep --strict "$app"
+          hdiutil verify "$bundle"/dmg/*.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Willow-macOS-${{ matrix.arch }}
+          path: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+          if-no-files-found: error
+          retention-days: 7
