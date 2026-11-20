@@ -4124,32 +4124,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
-name = "willow"
-version = "0.4.0"
-dependencies = [
- "chrono",
- "dirs 5.0.1",
- "fs2",
- "notify",
- "objc2",
- "objc2-app-kit",
- "objc2-foundation",
- "rusqlite",
- "rusty-leveldb",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-autostart",
- "tauri-plugin-opener",
- "tauri-plugin-positioner",
- "thiserror 1.0.69",
- "ureq",
- "windows-sys 0.61.2",
- "winreg 0.55.0",
-]
-
-[[package]]
 name = "tokio"
 version = "1.52.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4856,6 +4830,32 @@ dependencies = [
  "thiserror 2.0.18",
  "windows",
  "windows-core",
+]
+
+[[package]]
+name = "willow"
+version = "0.4.0"
+dependencies = [
+ "chrono",
+ "dirs 5.0.1",
+ "fs2",
+ "notify",
+ "objc2",
+ "objc2-app-kit",
+ "objc2-foundation",
+ "rusqlite",
+ "rusty-leveldb",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-autostart",
+ "tauri-plugin-opener",
+ "tauri-plugin-positioner",
+ "thiserror 1.0.69",
+ "ureq",
+ "windows-sys 0.61.2",
+ "winreg 0.55.0",
 ]
 
 [[package]]
