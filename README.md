@@ -2,12 +2,11 @@
 
 <img src="src-tauri/icons/128x128@2x.png" width="100" alt="Willow" />
 
-# Willow
+# Willow · 柳
 
-**One dashboard for everything your AI coding agents spend.**
+**An open-source desktop dashboard for AI coding usage.**
 
-Tokens · Cost · Sessions · Models · Billing blocks, all parsed from local logs.
-Usage data stays local. Pricing can be refreshed online.
+Track tokens, estimated costs, and sessions for OpenAI Codex CLI, Claude Code, Kimi CLI, and other coding agents. Willow reads usage logs on your device.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)
@@ -16,20 +15,22 @@ Usage data stays local. Pricing can be refreshed online.
 
 **English** · [简体中文](README.zh-CN.md)
 
-</div>
+[Download for Windows x64](https://github.com/hey-pu/Willow/releases/latest) · [Build on macOS](#install-and-build)
 
-![Overview with demonstration data](docs/screenshots/overview.png)
+</div>
 
 ## What is Willow?
 
-Willow is a cross-platform desktop app (macOS / Windows) that analyzes how you use AI coding agents on your machine: token usage, cost, requests, sessions, model distribution, agent distribution, and historical trends.
+Willow brings local usage logs from multiple AI coding tools into one desktop app. Compare input, output, and cache tokens, see estimated costs by day or model, and look up individual sessions. Open the quick panel from the Windows system tray or the macOS menu bar.
 
-It is not a chat client. It is the dashboard for where your tokens and money go, and it lives in the menu bar so today's spend is always one glance away.
+Reports reflect the usage recorded on your device. Cost estimates use model prices. Check your provider's dashboard for official billing and subscription limits. Willow stores usage data locally in SQLite and can refresh its pricing data online.
+
+![Willow showing AI token usage, estimated costs, and model breakdowns using demo data](docs/screenshots/overview.png)
 
 ## Features
 
 - **Multi-agent**: Claude Code, Codex CLI and Kimi CLI out of the box, with an adapter architecture ready for more
-- **Accurate costs**: long-context pricing (the whole request above 200K/272K/512K, as vendors bill it), 5m/1h cache-write pricing, cache-read discounts, fast/priority tier rates, dated list-price changes, DeepSeek off-peak rates — and stored costs are re-priced automatically when prices change
+- **Cost estimates**: long-context pricing (the whole request above 200K/272K/512K, as vendors bill it), 5m/1h cache-write pricing, cache-read discounts, fast/priority tier rates, dated list-price changes, DeepSeek off-peak rates — and stored estimates are recalculated when prices change
 - **Menu bar ticker**: today's cost or token count right next to the clock
 - **5-hour billing blocks**: each agent's usage grouped into hour-aligned 5-hour windows (Claude's and Codex's usage windows), with live burn rate
 - **Trends & breakdowns**: daily/weekly/monthly charts by agent, model, and token type

@@ -2,12 +2,11 @@
 
 <img src="src-tauri/icons/128x128@2x.png" width="100" alt="Willow" />
 
-# Willow
+# Willow · 柳
 
-**一个仪表盘，看清你所有 AI Coding Agent 的花销。**
+**开源的 AI 编程工具用量仪表盘。**
 
-Token · 成本 · 会话 · 模型 · 计费块，全部解析自本机日志。
-用量数据在本机处理，价格表支持联网更新。
+查看 OpenAI Codex CLI、Claude Code、Kimi CLI 等工具的 Token 用量、费用估算和会话记录。Willow 从本机日志读取用量。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)
@@ -16,20 +15,22 @@ Token · 成本 · 会话 · 模型 · 计费块，全部解析自本机日志�
 
 [English](README.md) · **简体中文**
 
-</div>
+[下载 Windows x64 安装包](https://github.com/hey-pu/Willow/releases/latest) · [在 macOS 上从源码构建](#安装与构建)
 
-![使用演示数据的总览](docs/screenshots/overview.png)
+</div>
 
 ## Willow 是什么？
 
-Willow 是一个跨平台桌面应用（macOS / Windows），用于分析你本机所有 AI Coding Agent 的使用情况：Token 用量、成本、请求数、会话分析、模型分布、Agent 分布与历史趋势。
+Willow 把多个 AI 编程工具的本地用量汇总到一个桌面应用里。你可以比较输入、输出和缓存 Token，按天或按模型查看费用估算，也可以查到单个会话。从 Windows 系统托盘或 macOS 菜单栏可以打开快速面板。
 
-它不是聊天工具，也不是 AI 客户端，而是 AI 使用量分析中心：常驻菜单栏，今天花了多少钱，抬眼即见。
+统计范围以本机日志为准，费用按模型价格估算。实际账单和订阅额度请在服务商后台查看。Willow 将用量数据存储在本机 SQLite 数据库中，价格表可联网更新。
+
+![Willow 用演示数据展示 Token 用量、费用估算和模型分布](docs/screenshots/overview.png)
 
 ## 功能特性
 
 - **多 Agent 支持**：Claude Code、Codex CLI、Kimi CLI 开箱即用，适配器架构可继续扩展
-- **精确计费**：长上下文计价（超过 200K/272K/512K 时整次请求按长上下文价，与厂商计费方式一致）、5 分钟/1 小时缓存写入计价、缓存读取折扣、fast/priority 档价格、按日期生效的官方调价、DeepSeek 错峰价；价格变化后已存储的费用会自动重算
+- **费用估算**：支持长上下文计价、5 分钟/1 小时缓存写入价格、缓存读取折扣、fast/priority 档价格、按日期生效的调价和 DeepSeek 错峰价。价格变化后会重新计算已存储的估算费用
 - **菜单栏实时显示**：今日成本或 Token 数直接显示在时钟旁边
 - **5 小时计费块**：按 Agent 分别把用量分组到整点对齐的 5 小时窗口（对应 Claude、Codex 各自的用量窗口），附实时燃烧率
 - **趋势与分布**：按日/周/月、按 Agent、按模型、按 Token 类型的图表
