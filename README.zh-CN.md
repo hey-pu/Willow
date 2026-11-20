@@ -62,11 +62,22 @@ Willow 是一个跨平台桌面应用（macOS / Windows），用于分析你本�
 
 ## 安装与构建
 
-**[GitHub Releases](https://github.com/hey-pu/Willow/releases/latest) 目前仅提供 Windows x64 安装包。** 在 Windows 上也可以运行 `pnpm tauri build --bundles nsis` 自行打包。本地构建需要 Node.js、pnpm、Rust 和 Tauri 的平台依赖。
+### Windows · 下载安装
 
-Windows 安装包未签名。如果本机有兼容的旧版应用数据，请在首次启动 Willow 前完全退出旧应用。Willow 会在数据目录为空时导入旧版用量历史、设置与支持的 WebView 偏好，包括订阅。
+从 [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest) 下载 `Willow_0.4.0_x64-setup.exe`。这是未签名的 Windows x64 安装包。也可以在 Windows 上依次执行 `pnpm install --frozen-lockfile` 和 `pnpm tauri build --bundles nsis` 自行打包。
 
-**macOS 支持从源码构建。** 在 Mac 上运行 `pnpm tauri build --bundles dmg` 即可打包。**Build macOS installers** 工作流已为 Apple Silicon 和 Intel 生成过测试版磁盘映像，采用临时签名，尚未通过 Apple 公证。WebKit 迁移已通过合成数据库测试，Mac 上的安装、菜单栏和实机迁移仍待验证。
+### macOS · 从源码构建
+
+Willow 可以在 Apple Silicon 和 Intel Mac 上构建。GitHub Releases 暂未提供 macOS 安装包。在 Mac 上安装 Node.js、pnpm、Rust 和 [Tauri 所需依赖](https://v2.tauri.app/start/prerequisites/#macos)后，在项目目录运行：
+
+```bash
+pnpm install --frozen-lockfile
+pnpm tauri build --bundles dmg
+```
+
+两种架构的磁盘映像都已通过 GitHub Actions 打包验证。Mac 上的安装、菜单栏和数据迁移仍待实测，公开安装包将在实测、Apple 签名和公证完成后再提供。
+
+如果本机有兼容的旧版应用数据，请在首次启动 Willow 前完全退出旧应用。Willow 会在数据目录为空时导入旧版用量历史、设置与支持的偏好，包括订阅。
 
 ## 准确性
 

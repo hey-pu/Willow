@@ -62,11 +62,22 @@ Sources with no local data are detected automatically and simply stay empty. Add
 
 ## Install and build
 
-**[GitHub Releases](https://github.com/hey-pu/Willow/releases/latest) currently offers a Windows x64 installer only.** To build it on Windows, run `pnpm tauri build --bundles nsis`. Local builds require Node.js, pnpm, Rust, and the Tauri platform prerequisites.
+### Windows · Download
 
-The Windows installer is unsigned. If you have data from an earlier compatible app, quit that app before launching Willow for the first time. Willow imports usage history, settings, and supported WebView preferences, including subscriptions, when its data directory is empty.
+Download `Willow_0.4.0_x64-setup.exe` from [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest). The Windows x64 installer is unsigned. To build it on Windows, run `pnpm install --frozen-lockfile` followed by `pnpm tauri build --bundles nsis`.
 
-**macOS is supported when building from source.** On a Mac, run `pnpm tauri build --bundles dmg`. The **Build macOS installers** workflow has built test disk images for Apple Silicon and Intel with ad hoc signing and without Apple notarization. The WebKit importer is tested with synthetic databases. Installation, menu bar behavior, and migration on a Mac remain unverified.
+### macOS · Build from source
+
+Willow builds for both Apple Silicon and Intel. There is currently no macOS installer on GitHub Releases. On a Mac, install Node.js, pnpm, Rust, and the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/#macos), then run these commands from the project directory:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm tauri build --bundles dmg
+```
+
+GitHub Actions has built and verified the disk images for both architectures. Installation, menu bar behavior, and data migration still need testing on a Mac. A public macOS download is deferred until that testing and Apple signing and notarization are complete.
+
+If you have data from an earlier compatible app, quit that app before launching Willow for the first time. Willow imports history, settings, and supported preferences, including subscriptions, when its data directory is empty.
 
 ## Accuracy
 
