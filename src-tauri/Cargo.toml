@@ -1,0 +1,50 @@
+[package]
+name = "willow"
+version = "0.4.0"
+description = "Willow - AI Usage Dashboard"
+authors = ["Willow contributors"]
+edition = "2021"
+
+[lib]
+name = "willow_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png", "macos-private-api"] }
+tauri-plugin-opener = "2"
+tauri-plugin-positioner = { version = "2", features = ["tray-icon"] }
+tauri-plugin-autostart = "2"
+notify = "6"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.32", features = ["bundled", "backup"] }
+chrono = { version = "0.4", features = ["serde"] }
+dirs = "5"
+ureq = { version = "2", features = ["json"] }
+thiserror = "1"
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.55"
+windows-sys = { version = "0.61", features = ["Win32_UI_WindowsAndMessaging"] }
+rusty-leveldb = "4"
+fs2 = "0.4"
+
+
+# Notch companion window: NSScreen safe-area detection + NSWindow level
+# tweaks. Versions match the ones already in tauri's dependency tree.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", default-features = false, features = [
+    "std",
+    "NSResponder",
+    "NSScreen",
+    "NSWindow",
+] }
+objc2-foundation = "0.3"
+
+[profile.release]
+lto = true
+codegen-units = 1

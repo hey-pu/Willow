@@ -1,0 +1,128 @@
+<div align="center">
+
+<img src="src-tauri/icons/128x128@2x.png" width="100" alt="Willow" />
+
+# Willow
+
+**One dashboard for everything your AI coding agents spend.**
+
+Tokens · Cost · Sessions · Models · Billing blocks, all parsed from local logs.
+Usage data stays local. Pricing can be refreshed online.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)
+![Tauri](https://img.shields.io/badge/Tauri-v2-24C8DB?logo=tauri&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+
+**English** · [简体中文](README.zh-CN.md)
+
+</div>
+
+![Overview with demonstration data](docs/screenshots/overview.png)
+
+## What is Willow?
+
+Willow is a cross-platform desktop app (macOS / Windows) that analyzes how you use AI coding agents on your machine: token usage, cost, requests, sessions, model distribution, agent distribution, and historical trends.
+
+It is not a chat client. It is the dashboard for where your tokens and money go, and it lives in the menu bar so today's spend is always one glance away.
+
+## Features
+
+- **Multi-agent**: Claude Code, Codex CLI and Kimi CLI out of the box, with an adapter architecture ready for more
+- **Accurate costs**: long-context pricing (the whole request above 200K/272K/512K, as vendors bill it), 5m/1h cache-write pricing, cache-read discounts, fast/priority tier rates, dated list-price changes, DeepSeek off-peak rates — and stored costs are re-priced automatically when prices change
+- **Menu bar ticker**: today's cost or token count right next to the clock
+- **5-hour billing blocks**: each agent's usage grouped into hour-aligned 5-hour windows (Claude's and Codex's usage windows), with live burn rate
+- **Trends & breakdowns**: daily/weekly/monthly charts by agent, model, and token type
+- **Local & private**: usage logs are parsed and stored locally in SQLite; pricing is refreshed online
+- **Light & dark themes**, accent colors, and an English/中文 interface
+
+## Supported data sources
+
+The following AI coding agents are supported, with some adapter logic ported from ccusage. Windows support also includes Qoder IDE, Qoder CN and WorkBuddy:
+
+| Agent | Location | Format |
+|---|---|---|
+| Claude Code | `$CLAUDE_CONFIG_DIR` / `~/.config/claude/projects` / `~/.claude/projects` | JSONL |
+| Codex CLI (OpenAI) | `sessions/` and `archived_sessions/` under `$CODEX_HOME` | JSONL |
+| Gemini CLI | `$GEMINI_DATA_DIR` or `~/.gemini/tmp` | JSON / JSONL |
+| OpenCode | `$OPENCODE_DATA_DIR` or `~/.local/share/opencode` | SQLite + JSON |
+| OpenClaw | `$OPENCLAW_DIR` or `~/.openclaw` | JSONL |
+| GitHub Copilot CLI | `~/.copilot/otel/*.jsonl` | OTEL JSONL |
+| Qwen Code | `projects/*/chats/` under `$QWEN_DATA_DIR` or `~/.qwen` | JSONL |
+| Kimi CLI | `sessions/**/wire.jsonl` under `$KIMI_DATA_DIR` or `~/.kimi` | JSONL |
+| Amp | `threads/` under `$AMP_DATA_DIR` or `~/.local/share/amp` | JSON |
+| Droid (Factory) | `$DROID_SESSIONS_DIR` or `~/.factory/sessions` | JSON |
+| Goose | `sessions.db` in the Goose data dir or `$GOOSE_PATH_ROOT` | SQLite |
+| Kilo | `kilo.db` under `$KILO_DATA_DIR` or `~/.local/share/kilo` | SQLite |
+| Codebuff | `~/.config/manicode*/projects` or `$CODEBUFF_DATA_DIR` | JSON |
+| Hermes Agent | `state.db` under `$HERMES_HOME` or `~/.hermes` | SQLite |
+| pi-agent | `$PI_AGENT_DIR` or `~/.pi/agent/sessions` | JSONL |
+
+Sources with no local data are detected automatically and simply stay empty. Adding another agent is one file in `src-tauri/src/adapters/`.
+
+## Install and build
+
+This repository provides source code. Build a Windows installer locally with `pnpm tauri build --bundles nsis`. The build requires Node.js, pnpm, Rust, and the Tauri platform prerequisites.
+
+The Windows x64 installer is `Willow_0.4.0_x64-setup.exe` and is unsigned. If you have data from an earlier compatible app, quit that app before launching Willow for the first time. Willow imports usage history, settings, and supported WebView preferences, including subscriptions, when its data directory is empty. The macOS WebKit importer is tested with synthetic databases. macOS packaging, menu bar behavior, and migration on an installed Mac remain unverified.
+
+## Accuracy
+
+Parsing and billing logic is ported from [ccusage](https://github.com/ryoppippi/ccusage), an implementation validated against large amounts of real-world data:
+
+- Full `message.usage` token schema, including `cache_creation` `ephemeral_5m/1h` breakdowns
+- Deduplication by `messageId + requestId`, keeping the record with more tokens on conflict; Codex events re-emitted with unchanged totals count once
+- LiteLLM pricing (embedded offline snapshot + daily online refresh with a jsDelivr mirror for networks that can't reach GitHub) with model-name matching that prefers the vendor's own price over resellers; built-in official prices fill the gaps for brand-new models
+- Prices follow the date of each request (e.g. GPT-5.6's July/August price cuts), fast/priority usage uses the vendor's published priority rates, and long prompts bill the whole request at the long-context rate
+- Cost modes: `auto` (prefer logged costUSD) / `calculate` (always recompute) / `display` (logged costUSD only)
+- Settings → Pricing shows where prices come from and lists any model without a known price (counted as $0)
+- History is kept when an agent prunes its old logs (Claude Code deletes transcripts after 30 days by default)
+- Where Willow deliberately differs from ccusage: whole-request long-context pricing, the Codex duplicate-event fix, and fast-tier rates for newer models
+
+## Development
+
+```bash
+pnpm install
+pnpm tauri dev      # development mode
+pnpm tauri build    # package (macOS .app/.dmg, Windows .msi/.exe)
+```
+
+End-to-end backend test (scans real local data):
+
+```bash
+cd src-tauri && cargo test --test pipeline -- --nocapture
+```
+
+### Architecture
+
+```
+src-tauri/src/
+├── adapters/        # one adapter per agent data source
+│   ├── claude.rs    # Claude Code JSONL parsing
+│   ├── codex.rs     # Codex CLI parsing
+│   ├── jsonl.rs     # streaming, resumable JSONL reader
+│   └── kimi.rs      # Kimi CLI parsing
+├── pricing.rs       # LiteLLM pricing, built-in/dated prices, model matching
+├── cost.rs          # long-context-aware cost calculation
+├── db.rs            # SQLite cache: skips unchanged files, reads only appended bytes, re-prices on price changes
+├── aggregate.rs     # daily/sessions/models/projects/blocks aggregation
+├── types.rs         # normalized UsageRecord
+└── lib.rs           # Tauri commands
+
+src/
+├── pages/           # Overview / Trends / Sessions / Models / Blocks / Settings
+├── components/      # shadcn-style UI + Recharts charts
+└── lib/             # api.ts (typed invoke) / format.ts / i18n.tsx
+```
+
+Data flow: on launch (and every 60s) incrementally scan log directories → parse & normalize → dedupe into SQLite (priced via LiteLLM on insert) → frontend queries aggregates by time range / cost mode.
+
+## Credits
+
+- [ccusage](https://github.com/ryoppippi/ccusage): Willow's parsing and billing logic is ported from this project
+- [Tauri](https://tauri.app) · [LiteLLM](https://github.com/BerriAI/litellm) (pricing data) · [Recharts](https://recharts.org)
+- Special thanks to the [LinuxDO](https://linux.do/) community for their recognition and support.
+
+## License
+
+[MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for ported code.

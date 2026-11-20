@@ -1,0 +1,14 @@
+[
+  {"value":0,"chinese":"0","international":"0"},
+  {"value":999,"chinese":"999","international":"999"},
+  {"value":1000,"chinese":"1000","international":"1K"},
+  {"value":9999,"chinese":"9999","international":"10K"},
+  {"value":10000,"chinese":"1万","international":"10K"},
+  {"value":2500000,"chinese":"250万","international":"2.5M"},
+  {"value":25000000,"chinese":"2500万","international":"25M"},
+  {"value":99999999,"chinese":"1亿","international":"100M"},
+  {"value":100000000,"chinese":"1亿","international":"100M"},
+  {"value":150000000,"chinese":"1.5亿","international":"150M"},
+  {"value":1000000000,"chinese":"10亿","international":"1B"},
+  {"value":123456789012,"chinese":"1234.57亿","international":"123.46B"}
+]

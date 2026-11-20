@@ -1,0 +1,154 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { IN_TAURI } from "@/lib/api";
+
+export type ThemeMode = "dark" | "light";
+export type AccentKey = "amber" | "blue" | "emerald" | "violet" | "rose";
+
+export const ACCENTS: Record<
+  AccentKey,
+  {
+    label: string;
+    swatch: string;
+    primary: string;
+    primaryFg: string;
+    /// Chart series palette led by the accent — charts re-color with the theme.
+    charts: [string, string, string, string, string];
+  }
+> = {
+  amber: {
+    label: "Amber",
+    swatch: "#d97757",
+    primary: "oklch(0.72 0.15 50)",
+    primaryFg: "oklch(0.14 0.004 285)",
+    charts: ["#d97757", "#38bdf8", "#34d399", "#fbbf24", "#c084fc"],
+  },
+  blue: {
+    label: "Blue",
+    swatch: "#3b82f6",
+    primary: "oklch(0.62 0.19 260)",
+    primaryFg: "oklch(0.98 0 0)",
+    charts: ["#3b82f6", "#22d3ee", "#8b5cf6", "#34d399", "#f59e0b"],
+  },
+  emerald: {
+    label: "Emerald",
+    swatch: "#246b5c",
+    primary: "oklch(0.48 0.09 170)",
+    primaryFg: "oklch(0.99 0.005 95)",
+    charts: ["#246b5c", "#c69242", "#719b89", "#6f8fa2", "#ad8275"],
+  },
+  violet: {
+    label: "Violet",
+    swatch: "#8b5cf6",
+    primary: "oklch(0.61 0.22 293)",
+    primaryFg: "oklch(0.98 0 0)",
+    charts: ["#8b5cf6", "#ec4899", "#38bdf8", "#c084fc", "#f59e0b"],
+  },
+  rose: {
+    label: "Rose",
+    swatch: "#f43f5e",
+    primary: "oklch(0.65 0.22 16)",
+    primaryFg: "oklch(0.98 0 0)",
+    charts: ["#f43f5e", "#fb923c", "#a78bfa", "#f472b6", "#38bdf8"],
+  },
+};
+
+const MODE_KEY = "tokbar-theme-mode";
+const ACCENT_KEY = "tokbar-accent";
+
+function applyTheme(mode: ThemeMode, accent: AccentKey) {
+  const root = document.documentElement;
+  root.classList.toggle("light", mode === "light");
+  // Keep the native window chrome (macOS traffic-light strip, Windows
+  // title bar) in the same color world as the page.
+  if (IN_TAURI) {
+    getCurrentWindow().setTheme(mode).catch(() => {});
+  }
+  const a = ACCENTS[accent];
+  const darkWillow = mode === "dark" && accent === "emerald";
+  const primary = darkWillow ? "oklch(0.77 0.10 170)" : a.primary;
+  const primaryForeground = darkWillow ? "oklch(0.17 0.015 175)" : a.primaryFg;
+  const charts = darkWillow
+    ? ["#81c4ad", "#e0ad61", "#9bc3a9", "#9fbaca", "#d6a89b"]
+    : a.charts;
+  root.style.setProperty("--primary", primary);
+  root.style.setProperty("--primary-foreground", primaryForeground);
+  root.style.setProperty("--ring", primary);
+  charts.forEach((color, i) => {
+    root.style.setProperty(`--chart-${i + 1}`, color);
+  });
+}
+
+function detectMode(): ThemeMode {
+  const saved = localStorage.getItem(MODE_KEY);
+  return saved === "dark" ? "dark" : "light";
+}
+
+function detectAccent(): AccentKey {
+  const saved = localStorage.getItem(ACCENT_KEY);
+  return saved && saved in ACCENTS ? (saved as AccentKey) : "emerald";
+}
+
+interface ThemeValue {
+  mode: ThemeMode;
+  accent: AccentKey;
+  setMode: (mode: ThemeMode) => void;
+  setAccent: (accent: AccentKey) => void;
+}
+
+const ThemeContext = createContext<ThemeValue>({
+  mode: "light",
+  accent: "emerald",
+  setMode: () => {},
+  setAccent: () => {},
+});
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [mode, setModeState] = useState<ThemeMode>(detectMode);
+  const [accent, setAccentState] = useState<AccentKey>(detectAccent);
+
+  useEffect(() => {
+    applyTheme(mode, accent);
+  }, [mode, accent]);
+
+  // Sync between the main window and the menu-bar quick panel.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === MODE_KEY && (e.newValue === "dark" || e.newValue === "light")) {
+        setModeState(e.newValue);
+      }
+      if (e.key === ACCENT_KEY && e.newValue && e.newValue in ACCENTS) {
+        setAccentState(e.newValue as AccentKey);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  const setMode = useCallback((m: ThemeMode) => {
+    localStorage.setItem(MODE_KEY, m);
+    setModeState(m);
+  }, []);
+
+  const setAccent = useCallback((a: AccentKey) => {
+    localStorage.setItem(ACCENT_KEY, a);
+    setAccentState(a);
+  }, []);
+
+  return (
+    <ThemeContext.Provider value={{ mode, accent, setMode, setAccent }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  return useContext(ThemeContext);
+}
