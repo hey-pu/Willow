@@ -25,6 +25,8 @@ Willow brings local usage logs from multiple AI coding tools into one desktop ap
 
 Reports reflect the usage recorded on your device. Cost estimates use model prices. Check your provider's dashboard for official billing and subscription limits. Willow stores usage data locally in SQLite and can refresh its pricing data online.
 
+**Switch between Chinese and international token units.** The same 150,000,000 tokens can display as **1.5亿** or **150M**. Choose a format under **Settings → Appearance → Token units**.
+
 ![Willow showing AI token usage, estimated costs, and model breakdowns using demo data](docs/screenshots/overview.png)
 
 ## Features
