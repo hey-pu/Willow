@@ -62,11 +62,11 @@ Willow 是一个跨平台桌面应用（macOS / Windows），用于分析你本�
 
 ## 安装与构建
 
-从 [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest) 下载 Windows x64 安装包，也可以用 `pnpm tauri build --bundles nsis` 在本地构建。本地构建需要 Node.js、pnpm、Rust 和 Tauri 的平台依赖。
+**[GitHub Releases](https://github.com/hey-pu/Willow/releases/latest) 目前仅提供 Windows x64 安装包。** 在 Windows 上也可以运行 `pnpm tauri build --bundles nsis` 自行打包。本地构建需要 Node.js、pnpm、Rust 和 Tauri 的平台依赖。
 
 Windows 安装包未签名。如果本机有兼容的旧版应用数据，请在首次启动 Willow 前完全退出旧应用。Willow 会在数据目录为空时导入旧版用量历史、设置与支持的 WebView 偏好，包括订阅。
 
-**Build macOS installers** 工作流可生成 Apple Silicon 和 Intel 的测试用磁盘映像，采用临时签名，尚未通过 Apple 公证。WebKit 迁移已通过合成数据库测试，Mac 上的安装、菜单栏和实机迁移仍待验证。
+**macOS 支持从源码构建。** 在 Mac 上运行 `pnpm tauri build --bundles dmg` 即可打包。**Build macOS installers** 工作流已为 Apple Silicon 和 Intel 生成过测试版磁盘映像，采用临时签名，尚未通过 Apple 公证。WebKit 迁移已通过合成数据库测试，Mac 上的安装、菜单栏和实机迁移仍待验证。
 
 ## 准确性
 
