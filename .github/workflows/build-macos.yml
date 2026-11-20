@@ -45,11 +45,17 @@ jobs:
           APP_ARCH: ${{ matrix.arch }}
         run: |
           pnpm tauri build --bundles dmg --target "$RUST_TARGET"
-          bundle="src-tauri/target/$RUST_TARGET/release/bundle"
-          app="$bundle/macos/Willow.app"
+          shopt -s nullglob
+          images=(src-tauri/target/"$RUST_TARGET"/release/bundle/dmg/*.dmg)
+          test "${#images[@]}" -eq 1
+          dmg="${images[0]}"
+          hdiutil verify "$dmg"
+          mount_dir=$(mktemp -d)
+          trap 'hdiutil detach "$mount_dir" >/dev/null 2>&1 || true; rmdir "$mount_dir" || true' EXIT
+          hdiutil attach -readonly -nobrowse -mountpoint "$mount_dir" "$dmg"
+          app="$mount_dir/Willow.app"
           test "$(lipo -archs "$app/Contents/MacOS/Willow")" = "$APP_ARCH"
           codesign --verify --deep --strict "$app"
-          hdiutil verify "$bundle"/dmg/*.dmg
       - uses: actions/upload-artifact@v4
         with:
           name: Willow-macOS-${{ matrix.arch }}
