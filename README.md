@@ -62,9 +62,11 @@ Sources with no local data are detected automatically and simply stay empty. Add
 
 ## Install and build
 
-This repository provides source code. Build a Windows installer locally with `pnpm tauri build --bundles nsis`. The build requires Node.js, pnpm, Rust, and the Tauri platform prerequisites.
+Download the Windows x64 installer from [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest), or build it locally with `pnpm tauri build --bundles nsis`. Local builds require Node.js, pnpm, Rust, and the Tauri platform prerequisites.
 
-The Windows x64 installer is `Willow_0.4.0_x64-setup.exe` and is unsigned. If you have data from an earlier compatible app, quit that app before launching Willow for the first time. Willow imports usage history, settings, and supported WebView preferences, including subscriptions, when its data directory is empty. The macOS WebKit importer is tested with synthetic databases. macOS packaging, menu bar behavior, and migration on an installed Mac remain unverified.
+The Windows installer is unsigned. If you have data from an earlier compatible app, quit that app before launching Willow for the first time. Willow imports usage history, settings, and supported WebView preferences, including subscriptions, when its data directory is empty.
+
+The **Build macOS installers** workflow produces test disk images for Apple Silicon and Intel. These builds use ad hoc signing and have no Apple notarization. The WebKit importer is tested with synthetic databases. Installation, menu bar behavior, and migration on a Mac remain unverified.
 
 ## Accuracy
 
