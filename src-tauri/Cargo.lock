@@ -4834,7 +4834,7 @@ dependencies = [
 
 [[package]]
 name = "willow"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "chrono",
  "dirs 5.0.1",
@@ -4845,6 +4845,7 @@ dependencies = [
  "objc2-foundation",
  "rusqlite",
  "rusty-leveldb",
+ "semver",
  "serde",
  "serde_json",
  "tauri",
@@ -4853,6 +4854,7 @@ dependencies = [
  "tauri-plugin-opener",
  "tauri-plugin-positioner",
  "thiserror 1.0.69",
+ "tokio",
  "ureq",
  "windows-sys 0.61.2",
  "winreg 0.55.0",

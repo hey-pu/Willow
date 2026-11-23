@@ -33,7 +33,9 @@ Willow 把多个 AI 编程工具的本地用量汇总到一个桌面应用里。
 
 - **多 Agent 支持**：Claude Code、Codex CLI、Kimi CLI 开箱即用，适配器架构可继续扩展
 - **费用估算**：支持长上下文计价、5 分钟/1 小时缓存写入价格、缓存读取折扣、fast/priority 档价格、按日期生效的调价和 DeepSeek 错峰价。价格变化后会重新计算已存储的估算费用
-- **菜单栏实时显示**：今日成本或 Token 数直接显示在时钟旁边
+- **Windows 桌面悬浮组件**常驻显示今日 Token 和估算费用。拖近屏幕边缘后自动吸附为小圆球，按住圆球任意位置即可拖动，支持中文万／亿与国际 K/M/B 单位、位置记忆和全屏自动隐藏。
+- **Windows 版本更新提醒**显示新版本、更新内容和下载入口，设置中也可以手动检查更新、查看本次更新内容。
+- **macOS 菜单栏实时显示**将今日成本或 Token 数显示在时钟旁边
 - **5 小时计费块**：按 Agent 分别把用量分组到整点对齐的 5 小时窗口（对应 Claude、Codex 各自的用量窗口），附实时燃烧率
 - **趋势与分布**：按日/周/月、按 Agent、按模型、按 Token 类型的图表
 - **本地与隐私**：用量日志在本地解析并存储在 SQLite，价格表会定期联网刷新
@@ -67,7 +69,11 @@ Willow 把多个 AI 编程工具的本地用量汇总到一个桌面应用里。
 
 ### Windows · 下载安装
 
-从 [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest) 下载 `Willow_0.4.0_x64-setup.exe`。这是未签名的 Windows x64 安装包。也可以在 Windows 上依次执行 `pnpm install --frozen-lockfile` 和 `pnpm tauri build --bundles nsis` 自行打包。
+从 [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest) 下载 `Willow_0.5.0_x64-setup.exe`。这是未签名的 Windows x64 安装包。也可以在 Windows 上依次执行 `pnpm install --frozen-lockfile` 和 `pnpm tauri build --bundles nsis` 自行打包。
+
+右键点击 Willow 托盘图标，勾选 **显示用量小组件** 即可开启常驻显示。点击组件可打开快速面板，拖离边缘可展开为浮条，拖近边缘后松手可吸附为圆球。组件的位置和显示状态会在重启后恢复。
+
+从 v0.4.0 升级时，先退出 Willow，再运行新版安装包覆盖安装，用量历史和偏好设置会保留。自 v0.5.0 起，应用会提醒后续 Windows 新版本并提供下载入口，下载和运行安装包即可升级。
 
 ### macOS · 从源码构建
 

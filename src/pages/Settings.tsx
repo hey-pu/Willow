@@ -29,6 +29,7 @@ import { useI18n, type I18nKey, type Lang } from "@/lib/i18n";
 import { useSubscriptions } from "@/lib/subscriptions";
 import { AgentMultiSelect } from "@/components/AgentMultiSelect";
 import { BrandIcon, agentBrand, subscriptionBrand } from "@/components/BrandIcon";
+import { UpdateSettings } from "@/components/UpdateNotice";
 import { ACCENTS, useTheme, type AccentKey, type ThemeMode } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +45,8 @@ type TrayMode = "cost" | "tokens" | "off";
 
 const isTrayMode = (v: unknown): v is TrayMode =>
   v === "cost" || v === "tokens" || v === "off";
+
+const IS_WINDOWS = navigator.userAgent.includes("Windows");
 
 const SUB_PRESETS: { name: string; monthlyUsd: number; agents: string[] }[] = [
   { name: "Claude Pro", monthlyUsd: 20, agents: ["claude-code"] },
@@ -363,6 +366,8 @@ export function SettingsPage({
         </Card>
       </div>
 
+      {IN_TAURI && IS_WINDOWS && <UpdateSettings />}
+
       <Card>
         <CardHeader className="flex-row items-center gap-2 space-y-0">
           <CreditCard className="h-4 w-4 text-muted-foreground" />
@@ -561,18 +566,18 @@ export function SettingsPage({
         </CardContent>
       </Card>
 
-      {/* Menu bar + Cost mode side by side */}
+      {/* Usage display and cost mode */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex-row items-center gap-2 space-y-0">
             <MenuSquare className="h-4 w-4 text-muted-foreground" />
-            <CardTitle>{t("settings.trayDisplay")}</CardTitle>
+            <CardTitle>{t(IS_WINDOWS ? "settings.trayWindows" : "settings.trayDisplay")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-xs text-muted-foreground">
-              {t("settings.trayDisplayDesc")}
+              {t(IS_WINDOWS ? "settings.trayWindowsDesc" : "settings.trayDisplayDesc")}
             </p>
-            {notchSupported && (
+            {!IS_WINDOWS && notchSupported && (
               <div>
                 <div className="mb-2 text-xs text-muted-foreground">
                   {t("settings.displayPosition")}
@@ -600,7 +605,7 @@ export function SettingsPage({
                 )}
               </div>
             )}
-            {(!notchSupported || !notchOn) && (
+            {!IS_WINDOWS && !notchOn && (
               <div>
                 {notchSupported && (
                   <div className="mb-2 text-xs text-muted-foreground">

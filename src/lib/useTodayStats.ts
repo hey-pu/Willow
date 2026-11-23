@@ -28,6 +28,7 @@ export interface TodayStats {
 interface Options {
   month?: boolean;
   hourly?: boolean;
+  activeBlock?: boolean;
   /** Poll interval in ms (keeps the burn rate current). */
   pollMs: number;
   /** For surfaces that are hidden most of the time (the quick panel):
@@ -39,6 +40,7 @@ async function fetchTodayStats(
   costMode: CostMode,
   month: boolean,
   hourly: boolean,
+  activeBlock: boolean,
 ): Promise<TodayStats> {
   // Bounds are computed per fetch, so a load after midnight is "today".
   const now = new Date();
@@ -46,7 +48,7 @@ async function fetchTodayStats(
   const [overview, monthOverview, blocks, hourlyRows] = await Promise.all([
     api.getOverview({ sinceMs: today, costMode }),
     month ? api.getOverview({ sinceMs: startOfMonth(now), costMode }) : null,
-    api.getBlocks({ sinceMs: blockLookbackSinceMs(now.getTime()), costMode }),
+    activeBlock ? api.getBlocks({ sinceMs: blockLookbackSinceMs(now.getTime()), costMode }) : null,
     hourly ? api.getHourly({ sinceMs: today, costMode }) : null,
   ]);
   let hourlyCost: number[] | null = null;
@@ -64,7 +66,7 @@ async function fetchTodayStats(
     byAgent: overview.byAgent,
     monthCost: monthOverview ? monthOverview.totals.cost : null,
     hourly: hourlyCost,
-    activeBlock: pickActiveBlock(blocks),
+    activeBlock: blocks ? pickActiveBlock(blocks) : null,
   };
 }
 
@@ -76,6 +78,7 @@ async function fetchTodayStats(
 export function useTodayStats({
   month = false,
   hourly = false,
+  activeBlock = true,
   pollMs,
   pauseWhileHidden = false,
 }: Options) {
@@ -91,7 +94,7 @@ export function useTodayStats({
     if (!costMode) return;
     const mine = ++gen.current;
     try {
-      const next = await fetchTodayStats(costMode, month, hourly);
+      const next = await fetchTodayStats(costMode, month, hourly, activeBlock);
       if (mine !== gen.current) return;
       setStats(next);
       setError(false);
@@ -100,7 +103,7 @@ export function useTodayStats({
       console.error("loading today's stats failed:", e);
       setError(true);
     }
-  }, [costMode, month, hourly]);
+  }, [costMode, month, hourly, activeBlock]);
 
   // Coalesce triggers that fire together (opening the panel fires both
   // window focus and visibilitychange) into a single fetch.

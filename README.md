@@ -33,7 +33,9 @@ Reports reflect the usage recorded on your device. Cost estimates use model pric
 
 - **Multi-agent**: Claude Code, Codex CLI and Kimi CLI out of the box, with an adapter architecture ready for more
 - **Cost estimates**: long-context pricing (the whole request above 200K/272K/512K, as vendors bill it), 5m/1h cache-write pricing, cache-read discounts, fast/priority tier rates, dated list-price changes, DeepSeek off-peak rates — and stored estimates are recalculated when prices change
-- **Menu bar ticker**: today's cost or token count right next to the clock
+- **Windows desktop widget** keeps today's tokens and estimated cost visible. Drag it toward a screen edge to snap into a compact circle, then drag from anywhere on the circle to reposition it. Supports Chinese 万/亿 and international K/M/B units, saved placement, and automatic hiding during fullscreen use.
+- **Windows update reminders** show new releases, changes, and a download link. Settings includes a manual update check and notes for the installed version.
+- **macOS menu bar ticker** shows today's cost or token count next to the clock
 - **5-hour billing blocks**: each agent's usage grouped into hour-aligned 5-hour windows (Claude's and Codex's usage windows), with live burn rate
 - **Trends & breakdowns**: daily/weekly/monthly charts by agent, model, and token type
 - **Local & private**: usage logs are parsed and stored locally in SQLite; pricing is refreshed online
@@ -67,7 +69,11 @@ Sources with no local data are detected automatically and simply stay empty. Add
 
 ### Windows · Download
 
-Download `Willow_0.4.0_x64-setup.exe` from [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest). The Windows x64 installer is unsigned. To build it on Windows, run `pnpm install --frozen-lockfile` followed by `pnpm tauri build --bundles nsis`.
+Download `Willow_0.5.0_x64-setup.exe` from [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest). The Windows x64 installer is unsigned. To build it on Windows, run `pnpm install --frozen-lockfile` followed by `pnpm tauri build --bundles nsis`.
+
+Right-click the Willow tray icon and enable **Show Usage Widget** to display today's usage. Click the widget to open the quick panel. Drag away from an edge for the expanded strip, or toward an edge to dock as a circle. Willow remembers the widget's position and visibility across restarts.
+
+To upgrade from v0.4.0, quit Willow and run the new installer over your existing installation. Your usage history and preferences are retained. Starting with v0.5.0, Willow can notify you about future Windows releases and open their download page. Download and run the installer to apply an update.
 
 ### macOS · Build from source
 

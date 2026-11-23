@@ -6,6 +6,7 @@ import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import App from "./App";
 import { QuickPanel } from "./pages/QuickPanel";
 import { NotchBar } from "./pages/NotchBar";
+import { UsageWidget } from "./pages/UsageWidget";
 import { I18nProvider } from "./lib/i18n";
 import { ThemeProvider } from "./lib/theme";
 import { SubscriptionsProvider } from "./lib/subscriptions";
@@ -21,6 +22,11 @@ const windowLabel = IN_TAURI
   : new URLSearchParams(location.search).get("window") ?? "main";
 const isQuickPanel = windowLabel === "quick";
 const isNotchBar = windowLabel === "notch";
+const isUsageWidget = windowLabel === "usage-widget";
+
+if (isUsageWidget && IN_TAURI) {
+  document.documentElement.classList.add("usage-widget-window");
+}
 
 // macOS gets the vibrancy material treatment (transparent windows +
 // translucent surface washes, see index.css); other platforms keep the
@@ -62,7 +68,7 @@ async function start() {
       <I18nProvider>
         <TokenUnitProvider>
         <SubscriptionsProvider>
-          {isNotchBar ? <NotchBar /> : isQuickPanel ? <QuickPanel /> : <App />}
+          {isNotchBar ? <NotchBar /> : isQuickPanel ? <QuickPanel /> : isUsageWidget ? <UsageWidget /> : <App />}
         </SubscriptionsProvider>
         </TokenUnitProvider>
       </I18nProvider>

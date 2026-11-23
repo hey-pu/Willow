@@ -19,6 +19,7 @@ import {
   Timer,
 } from "lucide-react";
 import {
+  IN_TAURI,
   api,
   onEvent,
   type QueryParams,
@@ -38,6 +39,7 @@ import { useI18n, type I18nKey } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Logo } from "@/components/Logo";
+import { UpdateNotice } from "@/components/UpdateNotice";
 
 // Lazy pages: keeps recharts and the page bodies out of the initial
 // bundle, which the lightweight quick panel shares.
@@ -75,6 +77,7 @@ const NAV: { id: Page; labelKey: I18nKey; icon: typeof LayoutDashboard }[] = [
 // over the content) the sidebar header leaves room for the buttons and the
 // top strip doubles as the window drag handle.
 const IS_MAC = navigator.userAgent.includes("Mac");
+const IS_WINDOWS = navigator.userAgent.includes("Windows");
 
 // Persisted like lang/theme/subscriptions; loading also migrates the old
 // plain "30d" range key into the richer selection model.
@@ -331,6 +334,7 @@ function App() {
           </div>
         </header>
 
+        {IN_TAURI && IS_WINDOWS && <UpdateNotice />}
         <main className="flex-1 overflow-y-auto p-6">
           <Suspense fallback={<Skeleton className="h-80" />}>
           {/* Every page prices with the backend cost mode: wait for it

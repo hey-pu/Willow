@@ -13,6 +13,9 @@ mod legacy_web_storage;
 mod legacy_webkit_storage;
 mod migration;
 mod token_units;
+mod updates;
+#[cfg(windows)]
+mod windows_widget;
 use token_units::TokenUnit;
 
 use std::collections::HashSet;
@@ -28,6 +31,7 @@ use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
 use tauri::utils::config::WindowEffectsConfig;
 #[cfg(target_os = "macos")]
 use tauri::utils::{WindowEffect, WindowEffectState};
+#[cfg(not(windows))]
 use tauri_plugin_positioner::{Position, WindowExt};
 
 use crate::cost::CostMode;
@@ -43,6 +47,8 @@ const TRAY_ICON: &[u8] = include_bytes!("../icons/32x32.png");
 
 /// Online prices older than this are refreshed in the background.
 const PRICING_MAX_AGE: Duration = Duration::from_secs(24 * 3600);
+const QUICK_WIDTH: f64 = 360.0;
+const QUICK_HEIGHT: f64 = 460.0;
 
 /// User settings persisted to settings.json in the app data dir.
 #[derive(Clone, Serialize, serde::Deserialize)]
@@ -60,6 +66,10 @@ struct Settings {
     qoder_cn_recording: bool,
     qoder_cn_env_owned: bool,
     qoder_cn_previous_env: Option<String>,
+    #[cfg(windows)]
+    usage_widget_enabled: bool,
+    #[cfg(windows)]
+    usage_widget_position: Option<windows_widget::Placement>,
 }
 impl Default for Settings {
     fn default() -> Self {
@@ -72,6 +82,10 @@ impl Default for Settings {
             qoder_cn_recording: false,
             qoder_cn_env_owned: false,
             qoder_cn_previous_env: None,
+            #[cfg(windows)]
+            usage_widget_enabled: false,
+            #[cfg(windows)]
+            usage_widget_position: None,
         }
     }
 }
@@ -832,7 +846,7 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
     // Hidden frameless popover window, shown next to the tray icon on click.
     let quick = WebviewWindowBuilder::new(app, "quick", WebviewUrl::App("index.html".into()))
         .title("Willow")
-        .inner_size(360.0, 460.0)
+        .inner_size(QUICK_WIDTH, QUICK_HEIGHT)
         .decorations(false)
         .resizable(false)
         .always_on_top(true)
@@ -854,6 +868,11 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
 
     let show = MenuItem::with_id(app, "show", "打开 Willow / Open Willow", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "退出 / Quit", true, None::<&str>)?;
+    #[cfg(windows)]
+    let usage_widget = windows_widget::menu_item(app)?;
+    #[cfg(windows)]
+    let menu = Menu::with_items(app, &[&show, &usage_widget, &quit])?;
+    #[cfg(not(windows))]
     let menu = Menu::with_items(app, &[&show, &quit])?;
 
     TrayIconBuilder::with_id("main")
@@ -861,8 +880,10 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
         .icon_as_template(cfg!(target_os = "macos"))
         .menu(&menu)
         .show_menu_on_left_click(false)
-        .on_menu_event(|app, event| match event.id.as_ref() {
+        .on_menu_event(move |app, event| match event.id.as_ref() {
             "show" => show_main_window(app.clone()),
+            #[cfg(windows)]
+            windows_widget::LABEL => windows_widget::toggle(app, &usage_widget),
             "quit" => app.exit(0),
             _ => {}
         })
@@ -872,24 +893,28 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
                 button: MouseButton::Left,
                 button_state: MouseButtonState::Up,
                 ..
-            } = event
+            } = &event
             {
                 let app = tray.app_handle();
                 if let Some(w) = app.get_webview_window("quick") {
                     if w.is_visible().unwrap_or(false) {
                         let _ = w.hide();
                     } else {
-                        // macOS menu bar is at the top, so the panel opens
-                        // below the icon; Windows/Linux trays sit at the
-                        // bottom, so it opens above (TrayCenter).
-                        let pos = if cfg!(target_os = "macos") {
-                            Position::TrayBottomCenter
-                        } else {
-                            Position::TrayCenter
-                        };
-                        let _ = w.move_window(pos);
-                        let _ = w.show();
-                        let _ = w.set_focus();
+                        #[cfg(windows)]
+                        if let TrayIconEvent::Click { position, rect, .. } = &event {
+                            let _ = windows_widget::show_tray_details(&w, *position, rect);
+                        }
+                        #[cfg(not(windows))]
+                        {
+                            let pos = if cfg!(target_os = "macos") {
+                                Position::TrayBottomCenter
+                            } else {
+                                Position::TrayCenter
+                            };
+                            let _ = w.move_window(pos);
+                            let _ = w.show();
+                            let _ = w.set_focus();
+                        }
                     }
                 }
             }
@@ -960,6 +985,8 @@ pub fn run() {
                 notch_info: Mutex::new(notch_info),
             });
             setup_tray(app)?;
+            #[cfg(windows)]
+            windows_widget::start(app.handle());
             sync_notch_window(app.handle());
             update_tray_title(app.handle());
             spawn_pricing_auto_refresh(app.handle().clone());
@@ -1008,7 +1035,12 @@ pub fn run() {
             get_sessions,
             get_projects,
             get_blocks,
-            get_sources
+            get_sources,
+            updates::check_for_app_update,
+            updates::get_app_release,
+            updates::open_app_release,
+            #[cfg(windows)]
+            windows_widget::show_widget_details,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

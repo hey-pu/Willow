@@ -109,6 +109,186 @@ html.notch-window body {
   overflow: hidden;
 }
 
+html.usage-widget-window,
+html.usage-widget-window body {
+  background: transparent;
+  overflow: hidden;
+}
+
+/* A quiet, high-contrast palette for the widget over light or dark desktops. */
+.willow-widget-shell {
+  --widget-ink: #f2f4eb;
+  --widget-muted: #a9bbb0;
+  --widget-gold: #d8bc87;
+  width: min(100%, 304px);
+  color: var(--widget-ink);
+}
+
+.willow-widget-bar,
+.willow-widget-ball {
+  overflow: hidden;
+  background: radial-gradient(ellipse at 34% 0%, #1e332b, #101a17 77%);
+  box-shadow: inset 0 1px 0 #d7f3dd1a, inset 0 0 0 1px #bccdbe26;
+}
+
+.willow-widget-bar {
+  display: flex;
+  align-items: stretch;
+  height: 48px;
+  border-radius: 24px;
+}
+
+.willow-widget-handle,
+.willow-widget-ball {
+  cursor: grab;
+}
+
+.willow-widget-handle:active,
+.willow-widget-ball:active {
+  cursor: grabbing;
+}
+
+.willow-widget-handle svg,
+.willow-widget-ball-handle svg {
+  pointer-events: none;
+}
+
+.willow-widget-handle {
+  display: grid;
+  width: 47px;
+  flex-shrink: 0;
+  place-items: center;
+}
+
+.willow-widget-open {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 9px;
+  margin: 5px 5px 5px 0;
+  padding-inline: 7px 10px;
+  border-radius: 19px;
+  text-align: start;
+  cursor: pointer;
+}
+
+.willow-widget-open:hover,
+.willow-widget-ball:hover .willow-widget-ball-open {
+  background: #d0eee309;
+}
+
+.willow-widget-open:focus-visible,
+.willow-widget-ball:focus-visible {
+  outline: 1px solid #c8efda;
+  outline-offset: -2px;
+}
+
+.willow-widget-today,
+.willow-widget-open svg {
+  color: var(--widget-muted);
+  font-size: 11px;
+}
+
+.willow-widget-value,
+.willow-widget-cost,
+.willow-widget-ball-value {
+  overflow: hidden;
+  font-family: Bahnschrift, var(--font-sans);
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.willow-widget-value {
+  font-size: 17px;
+}
+
+.willow-widget-cost {
+  max-width: 62px;
+  border-inline-start: 1px solid #b3c3b32b;
+  padding-inline-start: 8px;
+  color: var(--widget-gold);
+  font-size: 12px;
+}
+
+.willow-widget-alert {
+  color: var(--widget-gold);
+}
+
+.willow-widget-ball {
+  display: none;
+  position: relative;
+  width: min(100%, 72px);
+  aspect-ratio: 1;
+  grid-template-rows: 32px 1fr;
+  padding: 0;
+  border-radius: 50%;
+  user-select: none;
+  touch-action: none;
+  background: radial-gradient(circle at 36% 17%, #253d33, #172822 52%, #101a17);
+}
+
+.willow-widget-ball::after {
+  position: absolute;
+  inset: 3px;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px #c9e1c612;
+  pointer-events: none;
+  content: "";
+}
+
+.willow-widget-ball-handle {
+  display: grid;
+  place-items: end center;
+}
+
+.willow-widget-ball-open {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  margin: 0 7px 8px;
+  border-radius: 15px 15px 50% 50%;
+}
+
+.willow-widget-ball-value {
+  max-width: 100%;
+  font-size: 19px;
+  line-height: 22px;
+  letter-spacing: -0.025em;
+}
+
+.willow-widget-ball-value[data-long="true"] {
+  font-size: 15px;
+}
+
+.willow-widget-ball-value small {
+  margin-inline-start: 2px;
+  color: var(--widget-gold);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.willow-widget-ball-alert {
+  position: absolute;
+  top: 0;
+  right: 1px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--widget-gold);
+}
+
+@media (max-width: 144px) {
+  .willow-widget-bar { display: none; }
+  .willow-widget-ball { display: grid; }
+}
+
 /* Recharts SVG elements get a default focus ring when clicked — remove it */
 .recharts-wrapper:focus,
 .recharts-wrapper :focus,

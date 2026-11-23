@@ -1,8 +1,8 @@
 /** Willow's branch mark, shared by the main window and quick panel. */
-export function Logo({ size = 32 }: { size?: number }) {
+export function Logo({ size = 32, bare = false }: { size?: number; bare?: boolean }) {
   return (
     <svg width={size} height={size} viewBox="0 0 128 128" className="shrink-0" aria-hidden="true">
-      <rect width="128" height="128" rx="30" fill="#285943" />
+      {!bare && <rect width="128" height="128" rx="30" fill="#285943" />}
       <g transform="translate(-13.5 0)">
         <path
           d="M63 99c4-21 9-39 23-62M68 80 37 55M80 61l25 11M73 73l-5-28M88 49l-4-17M60 72 54 61M63 76 57 64M86 37 101 47M80 61 89 55"
