@@ -43,7 +43,7 @@ jobs:
           projectPath: .
           tagName: v__VERSION__
           releaseName: Willow v__VERSION__
-          releaseBody: "Adds a prominent Total Tokens column to the model table, with Chinese and international units and precise values on hover."
+          releaseBody: "Adds a highlighted Total Tokens column to trend details and refines the model table typography."
           releaseDraft: true
           prerelease: false
           updaterJsonPreferNsis: true

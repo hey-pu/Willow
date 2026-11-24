@@ -5310,7 +5310,7 @@ dependencies = [
 
 [[package]]
 name = "willow"
-version = "0.5.3"
+version = "0.5.4"
 dependencies = [
  "chrono",
  "dirs 5.0.1",

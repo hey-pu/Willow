@@ -186,6 +186,12 @@ export function TrendsPage({
             <TableHeader>
               <TableRow>
                 <TableHead>{t(DATE_HEAD[granularity])}</TableHead>
+                <TableHead
+                  scope="col"
+                  className="whitespace-nowrap bg-primary/15 text-right text-foreground normal-case"
+                >
+                  {t("th.totalTokens")}
+                </TableHead>
                 <TableHead className="text-right">{t("th.input")}</TableHead>
                 <TableHead className="text-right">{t("th.output")}</TableHead>
                 <TableHead className="text-right">{t("th.cacheWrite")}</TableHead>
@@ -198,6 +204,11 @@ export function TrendsPage({
               {tableRows.map((r) => (
                 <TableRow key={r.date}>
                   <TableCell className="font-medium">{r.date}</TableCell>
+                  <TableCell className="whitespace-nowrap bg-primary/10 text-right tabular-nums">
+                    <span title={formatNumber(r.totalTokens)} className="select-text">
+                      {formatTokens(r.totalTokens)}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-right tabular-nums">
                     <span title={formatNumber(r.inputTokens)}>{formatTokens(r.inputTokens)}</span>
                   </TableCell>

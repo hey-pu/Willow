@@ -88,7 +88,7 @@ export function ModelsPage({
                 <TableHead>{t("th.model")}</TableHead>
                 <TableHead
                   scope="col"
-                  className="whitespace-nowrap bg-primary/15 text-right font-semibold text-foreground normal-case"
+                  className="whitespace-nowrap bg-primary/15 text-right text-foreground normal-case"
                 >
                   {t("th.totalTokens")}
                 </TableHead>
@@ -111,7 +111,7 @@ export function ModelsPage({
                       {m.priced === false && <UnpricedBadge />}
                     </span>
                   </TableCell>
-                  <TableCell className="whitespace-nowrap bg-primary/10 text-right text-lg leading-6 font-bold tracking-tight tabular-nums">
+                  <TableCell className="whitespace-nowrap bg-primary/10 text-right tabular-nums">
                     <span title={formatNumber(m.totalTokens)} className="select-text">
                       {formatTokens(m.totalTokens)}
                     </span>
