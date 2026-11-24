@@ -82,10 +82,16 @@ export function ModelsPage({
           <CardTitle>{t("models.all")}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
+          <Table className="max-lg:[&_th]:px-2 max-lg:[&_td]:px-2">
             <TableHeader>
               <TableRow>
                 <TableHead>{t("th.model")}</TableHead>
+                <TableHead
+                  scope="col"
+                  className="whitespace-nowrap bg-primary/15 text-right font-semibold text-foreground normal-case"
+                >
+                  {t("th.totalTokens")}
+                </TableHead>
                 <TableHead className="text-right">{t("th.input")}</TableHead>
                 <TableHead className="text-right">{t("th.output")}</TableHead>
                 <TableHead className="text-right">{t("th.cacheWrite")}</TableHead>
@@ -98,11 +104,16 @@ export function ModelsPage({
               {models.map((m) => (
                 <TableRow key={m.model}>
                   <TableCell className="font-medium">
-                    <span className="flex max-w-80 items-center gap-1.5">
+                    <span className="flex max-w-80 items-center gap-1.5 max-lg:max-w-44">
                       <span className="truncate" title={m.model}>
                         {m.model}
                       </span>
                       {m.priced === false && <UnpricedBadge />}
+                    </span>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap bg-primary/10 text-right text-lg leading-6 font-bold tracking-tight tabular-nums">
+                    <span title={formatNumber(m.totalTokens)} className="select-text">
+                      {formatTokens(m.totalTokens)}
                     </span>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">

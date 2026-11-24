@@ -73,6 +73,7 @@ const en = {
   "th.lastActivity": "Last Activity",
   "th.tokens": "Tokens",
   "th.model": "Model",
+  "th.totalTokens": "Total Tokens",
 
   // Trends
   "trends.byDay": "Daily",
@@ -303,6 +304,7 @@ const zh: Record<keyof typeof en, string> = {
   "th.lastActivity": "最近活动",
   "th.tokens": "Token",
   "th.model": "模型",
+  "th.totalTokens": "总 Token",
 
   "trends.byDay": "按日",
   "trends.byWeek": "按周",
