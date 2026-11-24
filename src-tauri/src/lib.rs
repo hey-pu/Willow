@@ -941,6 +941,8 @@ pub fn run() {
             None,
         ))
         .setup(|app| {
+            #[cfg(windows)]
+            app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
             let data_dir = app
                 .path()
                 .app_data_dir()

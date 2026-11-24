@@ -1,0 +1,50 @@
+name: Updater release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Verify release version
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $tauriVersion = (Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version
+          $cargoVersion = [regex]::Match((Get-Content src-tauri/Cargo.toml -Raw), '(?m)^version = "([^"]+)"').Groups[1].Value
+          if ($env:GITHUB_REF_NAME -ne "v$version" -or $tauriVersion -ne $version -or $cargoVersion -ne $version) {
+            throw 'Release tag and application versions must match'
+          }
+      - run: node --test tests/tokenFormat.test.mjs tests/updateInstaller.test.mjs
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --locked --manifest-path src-tauri/Cargo.toml --lib
+      - uses: tauri-apps/tauri-action@action-v0.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: .
+          tagName: v__VERSION__
+          releaseName: Willow v__VERSION__
+          releaseBody: "This release includes signed in-app updates for Willow. Existing v0.5.0 installations need one manual installer download."
+          releaseDraft: true
+          prerelease: false
+          updaterJsonPreferNsis: true
+          args: "--bundles nsis --target x86_64-pc-windows-msvc"

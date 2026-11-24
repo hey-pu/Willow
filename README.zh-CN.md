@@ -69,11 +69,11 @@ Willow 把多个 AI 编程工具的本地用量汇总到一个桌面应用里。
 
 ### Windows · 下载安装
 
-从 [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest) 下载 `Willow_0.5.0_x64-setup.exe`。这是未签名的 Windows x64 安装包。也可以在 Windows 上依次执行 `pnpm install --frozen-lockfile` 和 `pnpm tauri build --bundles nsis` 自行打包。
+从 [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest) 下载最新的 `Willow_*_x64-setup.exe`。这是未签名的 Windows x64 安装包。也可以在 Windows 上依次执行 `pnpm install --frozen-lockfile` 和 `pnpm tauri build --bundles nsis` 自行打包。
 
 右键点击 Willow 托盘图标，勾选 **显示用量小组件** 即可开启常驻显示。点击组件可打开快速面板，拖离边缘可展开为浮条，拖近边缘后松手可吸附为圆球。组件的位置和显示状态会在重启后恢复。
 
-从 v0.4.0 升级时，先退出 Willow，再运行新版安装包覆盖安装，用量历史和偏好设置会保留。自 v0.5.0 起，应用会提醒后续 Windows 新版本并提供下载入口，下载和运行安装包即可升级。
+从 v0.4.0 升级时，先退出 Willow，再运行新版安装包覆盖安装，用量历史和偏好设置会保留。v0.5.0 可以提醒新版本并打开下载页。自 v0.5.1 起，Willow 支持在应用内下载并安装经过签名验证的更新。v0.5.0 用户需要手动安装一次 v0.5.1，后续版本即可使用应用内更新。
 
 ### macOS · 从源码构建
 

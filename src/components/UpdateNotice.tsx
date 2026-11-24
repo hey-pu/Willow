@@ -4,6 +4,7 @@ import { useEffect, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useI18n } from "@/lib/i18n";
+import { installSignedUpdate, useUpdateInstaller } from "@/lib/appUpdater";
 import {
   checkForUpdate,
   checkOnStartup,
@@ -27,6 +28,12 @@ const copy = {
     available: (version: string) => `Willow v${version} is available`,
     changes: "View changes",
     download: "Open download page",
+    install: "Download and install",
+    restartHint: "Willow will close and restart to complete installation.",
+    installing: (percent: number | null) => percent === null ? "Downloading update…" : `Downloading update… ${percent}%`,
+    verifying: "Verifying the downloaded update…",
+    installingApp: "Installing update… Willow will restart.",
+    installFailed: "The signed update could not be installed. You can download the installer instead.",
     later: "Later",
     whatsNew: "What’s new in this version",
     loadingNotes: "Loading release notes…",
@@ -38,6 +45,10 @@ const copy = {
     bundledNotes: [
       "Keep today’s token usage and estimated cost visible with the Windows desktop widget. Open the quick panel from the widget for more detail.",
       "Check for new Windows versions in Settings or open the download page from the update reminder.",
+    ],
+    updaterNotes: [
+      "Download and install future Windows updates inside Willow, with progress and signature verification.",
+      "Willow closes during installation and restarts when the update is complete. The full installer remains available on GitHub.",
     ],
   },
   zh: {
@@ -52,6 +63,12 @@ const copy = {
     available: (version: string) => `Willow v${version} 已发布`,
     changes: "查看变化",
     download: "打开下载页",
+    install: "下载并安装",
+    restartHint: "安装时 Willow 将退出并重新启动。",
+    installing: (percent: number | null) => percent === null ? "正在下载更新…" : `正在下载更新… ${percent}%`,
+    verifying: "正在验证更新文件…",
+    installingApp: "正在安装更新，Willow 随后会重新启动。",
+    installFailed: "无法安装签名更新，你可以改为下载完整安装包。",
     later: "稍后再看",
     whatsNew: "本次更新了什么",
     loadingNotes: "正在加载版本说明…",
@@ -64,15 +81,14 @@ const copy = {
       "Windows 桌面组件可常驻显示今日 Token 用量和估算费用，点击组件可打开快速面板查看更多信息。",
       "在设置中检查新的 Windows 版本，也可以从更新提醒直接打开下载页。",
     ],
+    updaterNotes: [
+      "支持在 Willow 内下载并安装后续 Windows 更新，显示下载进度并校验更新签名。",
+      "安装时应用会退出，完成后自动重启，GitHub 也保留完整安装包下载入口。",
+    ],
   },
 } as const;
 
-function ReleaseLink({
-  tag,
-  label,
-  primary = false,
-  onOpened,
-}: {
+function ReleaseLink({ tag, label, primary = false, onOpened }: {
   tag: string | null;
   label: string;
   primary?: boolean;
@@ -85,31 +101,47 @@ function ReleaseLink({
     setStatus("opening");
     try {
       await openRelease(tag);
+      setStatus("idle");
+      onOpened?.();
     } catch {
       setStatus("failed");
-      return;
     }
-    setStatus("idle");
-    onOpened?.();
   }
 
   return (
     <div className="flex flex-col items-start gap-1">
-      <Button
-        type="button"
-        variant={primary ? "default" : "outline"}
-        size="sm"
-        disabled={status === "opening"}
-        onClick={() => void handleOpen()}
-      >
+      <Button type="button" variant={primary ? "default" : "outline"} size="sm"
+        disabled={status === "opening"} onClick={() => void handleOpen()}>
         <ExternalLink className="size-3.5" aria-hidden="true" />
         {label}
       </Button>
-      {status === "failed" ? (
-        <span role="status" className="text-xs text-muted-foreground">
-          {copy[lang].openFailed}
-        </span>
-      ) : null}
+      {status === "failed" ? <span role="status" className="text-xs text-muted-foreground">{copy[lang].openFailed}</span> : null}
+    </div>
+  );
+}
+
+function InstallUpdateButton({ release }: { release: AppRelease }) {
+  const { lang } = useI18n();
+  const text = copy[lang];
+  const updater = useUpdateInstaller();
+  const busy = updater.phase !== "idle" && updater.phase !== "failed";
+  let label: string = text.install;
+  if (updater.phase === "checking") label = text.checking;
+  if (updater.phase === "downloading") label = text.installing(updater.percent);
+  if (updater.phase === "verifying") label = text.verifying;
+  if (updater.phase === "installing") label = text.installingApp;
+
+  return (
+    <div className="flex max-w-sm flex-col items-start gap-1.5">
+      <Button type="button" size="sm" disabled={busy}
+        onClick={() => void installSignedUpdate(release.version)}>
+        {busy ? <LoaderCircle className="size-3.5 motion-safe:animate-spin" aria-hidden="true" /> : <ArrowDownToLine className="size-3.5" aria-hidden="true" />}
+        {label}
+      </Button>
+      <span role="status" className="text-xs text-muted-foreground">
+        {updater.phase === "failed" ? text.installFailed : text.restartHint}
+      </span>
+      <ReleaseLink tag={release.tag} label={text.download} />
     </div>
   );
 }
@@ -148,13 +180,7 @@ export function UpdateNotice() {
           >
             {text.changes}
           </Button>
-          <ReleaseLink
-            key={release.tag}
-            tag={release.tag}
-            label={text.download}
-            primary
-            onOpened={() => dismissUpdate(release.version)}
-          />
+          <InstallUpdateButton release={release} />
           <Button
             type="button"
             variant="ghost"
@@ -187,7 +213,7 @@ type InstalledNotes =
 function InstalledReleaseNotes({ version }: { version: string | null }) {
   const { lang } = useI18n();
   const text = copy[lang];
-  const bundled = version === "0.5.0";
+  const bundled = version === "0.5.0" || version === "0.5.1";
   const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState<InstalledNotes>({ status: "idle" });
 
@@ -218,7 +244,7 @@ function InstalledReleaseNotes({ version }: { version: string | null }) {
         <div className="space-y-3 pt-3">
           {bundled ? (
             <ul className="list-disc space-y-1.5 ps-5 text-sm leading-relaxed text-muted-foreground">
-              {text.bundledNotes.map((note) => (
+              {(version === "0.5.1" ? text.updaterNotes : text.bundledNotes).map((note) => (
                 <li key={note}>{note}</li>
               ))}
             </ul>
@@ -247,6 +273,7 @@ export function UpdateSettings() {
   const { lang } = useI18n();
   const text = copy[lang];
   const { check } = useUpdates();
+  const updater = useUpdateInstaller();
   const [appVersion, setAppVersion] = useState<string | null>(null);
 
   useEffect(() => {
@@ -266,7 +293,17 @@ export function UpdateSettings() {
   const version = result?.currentVersion ?? appVersion;
   const release = result?.updateAvailable ? result.latestRelease : null;
   let status: string | null = null;
-  if (check.status === "checking") {
+  if (updater.phase === "checking") {
+    status = text.checking;
+  } else if (updater.phase === "downloading") {
+    status = text.installing(updater.percent);
+  } else if (updater.phase === "verifying") {
+    status = text.verifying;
+  } else if (updater.phase === "installing") {
+    status = text.installingApp;
+  } else if (updater.phase === "failed") {
+    status = text.installFailed;
+  } else if (check.status === "checking") {
     status = text.checking;
   } else if (check.status === "failed") {
     status = check.rateLimited ? text.rateLimited : text.failed;
@@ -309,7 +346,7 @@ export function UpdateSettings() {
         {release ? (
           <div className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
             <ReleaseNotes notes={release.notes || text.noNotes} />
-            <ReleaseLink key={release.tag} tag={release.tag} label={text.download} primary />
+            <InstallUpdateButton release={release} />
           </div>
         ) : null}
         <InstalledReleaseNotes version={version} />

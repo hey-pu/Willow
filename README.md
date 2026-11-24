@@ -69,11 +69,11 @@ Sources with no local data are detected automatically and simply stay empty. Add
 
 ### Windows · Download
 
-Download `Willow_0.5.0_x64-setup.exe` from [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest). The Windows x64 installer is unsigned. To build it on Windows, run `pnpm install --frozen-lockfile` followed by `pnpm tauri build --bundles nsis`.
+Download the latest `Willow_*_x64-setup.exe` from [GitHub Releases](https://github.com/hey-pu/Willow/releases/latest). The Windows x64 installer is unsigned. To build it on Windows, run `pnpm install --frozen-lockfile` followed by `pnpm tauri build --bundles nsis`.
 
 Right-click the Willow tray icon and enable **Show Usage Widget** to display today's usage. Click the widget to open the quick panel. Drag away from an edge for the expanded strip, or toward an edge to dock as a circle. Willow remembers the widget's position and visibility across restarts.
 
-To upgrade from v0.4.0, quit Willow and run the new installer over your existing installation. Your usage history and preferences are retained. Starting with v0.5.0, Willow can notify you about future Windows releases and open their download page. Download and run the installer to apply an update.
+To upgrade from v0.4.0, quit Willow and run the new installer over your existing installation. Your usage history and preferences are retained. v0.5.0 can notify you about releases and open their download page. Starting with v0.5.1, Willow can download and install signed updates in-app. v0.5.0 users must manually install v0.5.1 once to enable the updater.
 
 ### macOS · Build from source
 

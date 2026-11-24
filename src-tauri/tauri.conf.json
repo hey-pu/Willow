@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Willow",
   "mainBinaryName": "Willow",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "identifier": "io.github.puchenhui.willow",
   "build": {
     "beforeDevCommand": "pnpm dev",
@@ -29,14 +29,21 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": "all",
     "windows": {
       "nsis": {
         "installerIcon": "icons/icon.ico",
-        "languages": ["SimpChinese", "English"]
+        "languages": [
+          "SimpChinese",
+          "English"
+        ]
       },
       "wix": {
-        "language": ["zh-CN", "en-US"]
+        "language": [
+          "zh-CN",
+          "en-US"
+        ]
       }
     },
     "icon": [
@@ -46,5 +53,17 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEYxOUE2RkNCOEVEQUU3NTQKUldSVTU5cU95MithOFJUYmhtSmxkeEZTMSt2MWlINUpoc3g5MlB0cjlib2NsdkkybUxFd29jUk8K",
+      "endpoints": [
+        "https://github.com/hey-pu/Willow/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      },
+      "requireSignedVersion": true
+    }
   }
 }
