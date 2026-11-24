@@ -674,7 +674,7 @@ mod tests {
     #[test]
     fn new_widget_settings_are_optional_and_round_trip() {
         let mut settings: Settings = serde_json::from_str(r#"{"language":"zh"}"#).unwrap();
-        assert!(!settings.usage_widget_enabled);
+        assert!(settings.usage_widget_enabled);
         assert!(settings.usage_widget_position.is_none());
         settings.usage_widget_enabled = true;
         settings.usage_widget_position = Some(Placement {

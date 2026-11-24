@@ -1,6 +1,6 @@
 [package]
 name = "willow"
-version = "0.5.1"
+version = "0.5.2"
 description = "Willow - AI Usage Dashboard"
 authors = ["Willow contributors"]
 edition = "2021"

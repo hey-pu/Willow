@@ -43,7 +43,7 @@ jobs:
           projectPath: .
           tagName: v__VERSION__
           releaseName: Willow v__VERSION__
-          releaseBody: "This release includes signed in-app updates for Willow. Existing v0.5.0 installations need one manual installer download."
+          releaseBody: "The Windows usage widget opens by default after this upgrade. You can turn it off in the tray menu."
           releaseDraft: true
           prerelease: false
           updaterJsonPreferNsis: true

@@ -69,6 +69,8 @@ struct Settings {
     #[cfg(windows)]
     usage_widget_enabled: bool,
     #[cfg(windows)]
+    usage_widget_default_applied: bool,
+    #[cfg(windows)]
     usage_widget_position: Option<windows_widget::Placement>,
 }
 impl Default for Settings {
@@ -83,7 +85,9 @@ impl Default for Settings {
             qoder_cn_env_owned: false,
             qoder_cn_previous_env: None,
             #[cfg(windows)]
-            usage_widget_enabled: false,
+            usage_widget_enabled: true,
+            #[cfg(windows)]
+            usage_widget_default_applied: false,
             #[cfg(windows)]
             usage_widget_position: None,
         }
@@ -152,10 +156,22 @@ fn settings_path(cache_dir: &Path) -> PathBuf {
 }
 
 fn load_settings(cache_dir: &Path) -> Settings {
-    std::fs::read_to_string(settings_path(cache_dir))
+    let settings: Settings = std::fs::read_to_string(settings_path(cache_dir))
         .ok()
         .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+        .unwrap_or_default();
+    #[cfg(windows)]
+    {
+        let mut settings = settings;
+        if !settings.usage_widget_default_applied {
+            settings.usage_widget_enabled = true;
+            settings.usage_widget_default_applied = true;
+            save_settings(cache_dir, &settings);
+        }
+        settings
+    }
+    #[cfg(not(windows))]
+    settings
 }
 
 fn save_settings(cache_dir: &Path, settings: &Settings) {
@@ -1051,6 +1067,33 @@ pub fn run() {
 #[cfg(test)]
 mod token_setting_tests {
     use super::*;
+    #[cfg(windows)]
+    #[test]
+    fn widget_upgrade_enables_once_and_keeps_later_opt_out() {
+        let timestamp = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let directory = std::env::temp_dir().join(format!(
+            "willow-widget-default-{}-{timestamp}",
+            std::process::id()
+        ));
+        std::fs::create_dir_all(&directory).unwrap();
+        std::fs::write(
+            settings_path(&directory),
+            r#"{"usageWidgetEnabled":false,"language":"zh"}"#,
+        ).unwrap();
+        let mut settings = load_settings(&directory);
+        assert!(settings.usage_widget_enabled);
+        assert!(settings.usage_widget_default_applied);
+        assert_eq!(settings.language, "zh");
+        settings.usage_widget_enabled = false;
+        save_settings(&directory, &settings);
+        assert!(!load_settings(&directory).usage_widget_enabled);
+        std::fs::remove_file(settings_path(&directory)).unwrap();
+        std::fs::remove_dir(&directory).unwrap();
+    }
+
     #[test]
     fn legacy_settings_default_to_chinese_and_round_trip_units() {
         let mut settings: Settings = serde_json::from_str(r#"{"language":"zh","trayMode":"tokens"}"#).unwrap();
