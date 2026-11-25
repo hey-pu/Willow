@@ -43,7 +43,7 @@ jobs:
           projectPath: .
           tagName: v__VERSION__
           releaseName: Willow v__VERSION__
-          releaseBody: "Adds a highlighted Total Tokens column to trend details and refines the model table typography."
+          releaseBody: "Refines the update reminder into a compact notification bar and aligns the update actions in Settings."
           releaseDraft: true
           prerelease: false
           updaterJsonPreferNsis: true

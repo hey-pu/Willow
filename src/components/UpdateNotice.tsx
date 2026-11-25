@@ -1,5 +1,5 @@
 import { getVersion } from "@tauri-apps/api/app";
-import { ArrowDownToLine, ExternalLink, History, LoaderCircle } from "lucide-react";
+import { ArrowDownToLine, ChevronDown, ExternalLink, History, LoaderCircle, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -120,7 +120,7 @@ function ReleaseLink({ tag, label, primary = false, onOpened }: {
   );
 }
 
-function InstallUpdateButton({ release }: { release: AppRelease }) {
+function InstallUpdateButton({ release, compact = false }: { release: AppRelease; compact?: boolean }) {
   const { lang } = useI18n();
   const text = copy[lang];
   const updater = useUpdateInstaller();
@@ -131,17 +131,26 @@ function InstallUpdateButton({ release }: { release: AppRelease }) {
   if (updater.phase === "verifying") label = text.verifying;
   if (updater.phase === "installing") label = text.installingApp;
 
-  return (
-    <div className="flex max-w-sm flex-col items-start gap-1.5">
+  const button = (
       <Button type="button" size="sm" disabled={busy}
+        title={text.restartHint}
         onClick={() => void installSignedUpdate(release.version)}>
         {busy ? <LoaderCircle className="size-3.5 motion-safe:animate-spin" aria-hidden="true" /> : <ArrowDownToLine className="size-3.5" aria-hidden="true" />}
         {label}
       </Button>
+  );
+
+  if (compact) return button;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        {button}
+        <ReleaseLink tag={release.tag} label={text.download} />
+      </div>
       <span role="status" className="text-xs text-muted-foreground">
         {updater.phase === "failed" ? text.installFailed : text.restartHint}
       </span>
-      <ReleaseLink tag={release.tag} label={text.download} />
     </div>
   );
 }
@@ -150,6 +159,8 @@ export function UpdateNotice() {
   const { lang } = useI18n();
   const text = copy[lang];
   const { check, dismissedVersion } = useUpdates();
+  const updater = useUpdateInstaller();
+  const busy = updater.phase !== "idle" && updater.phase !== "failed";
   const [expandedTag, setExpandedTag] = useState<string | null>(null);
   const notesId = useId();
 
@@ -163,13 +174,15 @@ export function UpdateNotice() {
   const expanded = expandedTag === release.tag;
 
   return (
-    <div className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3">
-      <div className="flex flex-wrap items-start justify-between gap-3 sm:items-center">
-        <p role="status" className="flex min-w-0 items-center gap-2.5 text-sm font-medium">
-          <ArrowDownToLine className="size-4 shrink-0" aria-hidden="true" />
+    <div className="mx-6 mt-4 shrink-0 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <p role="status" className="flex min-w-0 items-center gap-3 text-sm font-medium">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <ArrowDownToLine className="size-4" aria-hidden="true" />
+          </span>
           <span className="wrap-break-word">{text.available(release.version)}</span>
         </p>
-        <div className="flex flex-wrap items-start gap-2">
+        <div className="flex items-center gap-1.5">
           <Button
             type="button"
             variant="ghost"
@@ -179,19 +192,31 @@ export function UpdateNotice() {
             onClick={() => setExpandedTag(expanded ? null : release.tag)}
           >
             {text.changes}
+            <ChevronDown className={`size-3.5 transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden="true" />
           </Button>
-          <InstallUpdateButton release={release} />
+          <InstallUpdateButton release={release} compact />
           <Button
             type="button"
             variant="ghost"
             size="sm"
+            className="size-8 p-0 text-muted-foreground"
+            aria-label={text.later}
+            title={text.later}
+            disabled={busy}
             onClick={() => dismissUpdate(release.version)}
           >
-            {text.later}
+            <X className="size-4" aria-hidden="true" />
           </Button>
         </div>
       </div>
+      {updater.phase === "failed" ? (
+        <div role="status" className="mt-2 flex flex-wrap items-center gap-2 border-t border-primary/15 pt-2 text-xs text-muted-foreground">
+          <span>{text.installFailed}</span>
+          <ReleaseLink tag={release.tag} label={text.download} />
+        </div>
+      ) : null}
       <div id={notesId} hidden={!expanded} className="mt-3 border-t border-primary/20 pt-3">
+        <p className="mb-2 text-xs text-muted-foreground">{text.restartHint}</p>
         {expanded ? <ReleaseNotes notes={release.notes || text.noNotes} /> : null}
       </div>
     </div>
